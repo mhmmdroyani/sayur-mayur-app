@@ -1,0 +1,118 @@
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>SAYUR MAYUR - Checkout</title>
+      <link rel="stylesheet" href="style.css" />
+    </head>
+    <body data-page="checkout">
+      <header class="site-header">
+        <div class="container header-inner">
+          <h1 class="brand" style="color: rgb(0, 139, 0);">SAYUR MAYUR</h1>
+          <nav class="nav">
+            <a href="index.html" data-nav="home">Beranda</a>
+            <a href="products.html" data-nav="products">Produk</a>
+            <a href="contact.html" data-nav="contact">Kontak</a>
+            <a href="checkout.html" data-nav="checkout">Checkout</a>
+            <a href="admin.html" data-nav="admin">Admin</a>
+          </nav>
+          <button class="cart-btn" id="openCart" aria-label="Buka Keranjang">
+            🛒 <span id="cartCount">0</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="sub-hero">
+  <div class="container">
+    <h2>Checkout</h2>
+    <p class="muted">Periksa kembali keranjang belanja Anda, lalu isi data pengiriman.</p>
+  </div>
+</section>
+
+<main class="container checkout-page">
+  <section class="checkout-layout">
+    <div class="order-summary">
+      <h3>Ringkasan Pesanan</h3>
+      <div id="checkoutItems" class="checkout-items"></div>
+      <div class="totals">
+        <span>Subtotal:</span>
+        <strong id="checkoutSubtotal">Rp 0</strong>
+      </div>
+      <div class="totals">
+        <span>Ongkos Kirim:</span>
+        <strong id="checkoutShipping">Rp 0</strong>
+      </div>
+      <div class="totals grand">
+        <span>Total Bayar:</span>
+        <strong id="checkoutTotal">Rp 0</strong>
+      </div>
+    </div>
+
+    <div class="shipping-form">
+      <h3>Data Pengiriman</h3>
+      <form id="checkoutForm">
+        <label>Nama Lengkap</label>
+        <input type="text" id="nama" required />
+
+        <label>Alamat Lengkap</label>
+        <textarea id="alamat" rows="3" required></textarea>
+
+        <label>Kota / Kabupaten</label>
+        <input type="text" id="kota" required />
+
+        <label>Nomor HP</label>
+        <input type="tel" id="hp" required />
+
+        <label>Metode Pengiriman</label>
+        <select id="metodeKirim">
+          <option value="20000">Reguler (Rp 20.000)</option>
+          <option value="40000">Express (Rp 40.000)</option>
+        </select>
+
+        <label>Metode Pembayaran</label>
+        <select id="metodeBayar">
+          <option>Transfer Bank</option>
+          <option>E-Wallet</option>
+          <option>COD (Bayar di Tempat)</option>
+        </select>
+
+        <button type="submit" class="btn full">Konfirmasi Pesanan</button>
+      </form>
+
+      <div id="successMessage" class="success-message" hidden>
+        <h4>Pesanan Berhasil!</h4>
+        <p>Terima kasih, pesanan Anda akan segera kami proses.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+      <footer class="site-footer">
+        <div class="container">
+          <small>&copy; <span id="year"></span> SAYUR MAYUR — Toko SAYUR andalan Anda.</small>
+        </div>
+      </footer>
+
+      <!-- Drawer Keranjang -->
+      <aside id="cartDrawer" class="cart-drawer" aria-hidden="true">
+        <div class="cart-header">
+          <h4>Keranjang</h4>
+          <button id="closeCart" aria-label="Tutup Keranjang">✕</button>
+        </div>
+        <div id="cartItems" class="cart-items"></div>
+        <div class="cart-footer">
+          <div class="totals">
+            <span>Total:</span>
+            <strong id="cartTotal">Rp 0</strong>
+          </div>
+          <button id="goCheckout" class="btn full">Checkout</button>
+          <button id="clearCart" class="btn outline full">Kosongkan</button>
+        </div>
+      </aside>
+      <div id="backdrop" class="backdrop" hidden></div>
+
+      <script src="app.js"></script>
+    </body>
+    </html>
