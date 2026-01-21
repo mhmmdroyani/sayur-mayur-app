@@ -1,0 +1,62 @@
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE and Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# PHP
+vendor/
+composer.lock
+*.log
+
+# Logs (Production logs should not be committed)
+/logs/*.log
+/logs/*.txt
+
+# Database
+*.sql.gz
+*.sqlite
+*.db
+
+# Uploads & Images (kecuali default)
+img/*
+!img/default.jpg
+!img/.gitkeep
+
+# Config (jika ada file config local)
+config/local.php
+.env
+
+# Logs
+logs/
+*.log
+error_log
+
+# Cache
+cache/
+tmp/
+temp/
+
+# Backup
+backup/
+*.bak
+*.backup
+
+# OS generated files
+.Trashes
+
+# Session files
+sessions/
