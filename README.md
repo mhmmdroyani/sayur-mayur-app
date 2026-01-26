@@ -272,7 +272,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 Jika ada pertanyaan atau masalah, silakan:
 - Buat issue di GitHub repository
-- Email: mhmmdroyani@example.com
+- Email: mhmmdrroyani@gmail.com
 
 ---
 
