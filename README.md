@@ -24,14 +24,17 @@ SAYUR MAYUR adalah platform e-commerce yang dirancang khusus untuk memudahkan tr
 - ✅ **Real-time Cart Update** dengan toast notifications
 - ✅ **Product Pagination** untuk performa optimal
 - ✅ **Contact Form** untuk komunikasi
+- ✅ **Wishlist Feature** - Save produk favorit dengan localStorage
 
 ### 👨‍💼 Fitur Admin
 - ✅ **Dashboard** dengan ringkasan data
-- ✅ **Manajemen Produk** (CRUD)
-- ✅ **Riwayat Transaksi** lengkap
+- ✅ **Manajemen Produk** (CRUD) dengan Search & Filter
+- ✅ **Riwayat Transaksi** lengkap dengan Search, Filter, & Sort
 - ✅ **Upload Gambar** dengan validasi
 - ✅ **Secure Login** dengan session management
 - ✅ **Protected Routes** dengan authentication
+- ✅ **Manajemen Pesan** - Filter & reply customer messages
+- ✅ **Filter Transaksi** - By status, payment method, date range
 
 ### 🔒 Keamanan
 - ✅ **SQL Injection Prevention** dengan Prepared Statements

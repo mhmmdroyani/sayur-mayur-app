@@ -63,24 +63,29 @@ Password: admin123
 - [ ] Hero section terlihat
 - [ ] Featured products muncul
 - [ ] Navigation bekerja
+- [ ] Wishlist badge visible di navbar
 
 ### Products Page (products.php)
 - [ ] 8 produk sample terlihat
 - [ ] Search box berfungsi
 - [ ] Filter sort bekerja
 - [ ] Pagination ada
+- [ ] Wishlist button (♥) di setiap kartu produk
 
 ### Cart & Checkout
 - [ ] Add to cart → Toast muncul
 - [ ] Cart drawer slide
 - [ ] Checkout form berfungsi
 - [ ] Invoice generated setelah submit
+- [ ] Subtotal display correctly
 
 ### Admin Panel
 - [ ] Login dengan admin/admin123
 - [ ] Dashboard muncul
-- [ ] Kelola produk berfungsi
-- [ ] Transaction list terlihat
+- [ ] Kelola produk berfungsi dengan search & filter
+- [ ] Transaction list terlihat dengan search & filter
+- [ ] Payment method column visible
+- [ ] Date filter (today/week/month) bekerja
 
 ---
 
@@ -96,7 +101,16 @@ Password: admin123
 6. Lihat cart drawer ✅
 ```
 
-### 2. Checkout
+### 2. Wishlist Feature
+```
+1. Klik "Produk" di navbar
+2. Klik icon hati (♥) di kartu produk untuk save favorit
+3. Lihat counter di navbar Wishlist bertambah ✅
+4. Klik "Wishlist" di navbar untuk melihat produk favorit ✅
+5. Klik "Tambah ke Keranjang" dari wishlist ✅
+```
+
+### 3. Checkout
 ```
 1. Di cart, klik "Checkout" button
 2. Isi form:
@@ -105,17 +119,31 @@ Password: admin123
    - Alamat: Jl. Mana Saja No. 123
 3. Klik "Proses Pesanan"
 4. Invoice akan ditampilkan ✅
+5. Subtotal, diskon, & total terupdate dengan benar ✅
 ```
 
-### 3. Admin - Tambah Produk
+### 4. Admin - Tambah Produk
 ```
 1. Login admin (admin/admin123)
 2. Klik "Kelola Produk"
-3. Klik "Tambah Produk Baru"
-4. Isi form produk
-5. Upload gambar
-6. Klik "Simpan"
-7. Produk baru muncul di katalog ✅
+3. Gunakan search & filter untuk cari produk
+4. Klik "Tambah Produk Baru"
+5. Isi form produk
+6. Upload gambar
+7. Klik "Simpan"
+8. Produk baru muncul di katalog ✅
+```
+
+### 5. Admin - Filter Transaksi
+```
+1. Login admin (admin/admin123)
+2. Klik "Riwayat Transaksi"
+3. Gunakan filter:
+   - Cari dengan ID / Nama / No. Telepon
+   - Filter status pesanan
+   - Filter metode pembayaran
+   - Filter tanggal (Hari Ini / Minggu Ini / Bulan Ini) ✅
+4. Lihat payment method column ✅
 ```
 
 ---

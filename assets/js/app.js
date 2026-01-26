@@ -2,6 +2,7 @@
  * KONFIGURASI
  *************************************************/
 const CART_KEY = "sayur_mayur.cart";
+const WISHLIST_KEY = "sayur_mayur.wishlist";
 
 /*************************************************
  * UTIL
@@ -25,6 +26,11 @@ function showToast(message, type = 'success') {
   
   const toast = new bootstrap.Toast(toastEl);
   toast.show();
+}
+
+// Expose immediately
+if (typeof window !== 'undefined') {
+  window.showToast = showToast;
 }
 
 /*************************************************
@@ -116,6 +122,132 @@ function updateCartBadge() {
 }
 
 /*************************************************
+ * WISHLIST BADGE
+ *************************************************/
+function updateWishlistBadge() {
+  const badge = document.getElementById("wishlistCount");
+  if (!badge) return;
+
+  try {
+    const wishlist = JSON.parse(localStorage.getItem(WISHLIST_KEY) || '[]');
+    const count = Array.isArray(wishlist) ? wishlist.length : 0;
+    
+    if (count > 0) {
+      badge.textContent = count;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch (error) {
+    console.error('Error updating wishlist badge:', error);
+    badge.style.display = 'none';
+  }
+}
+
+// Expose immediately
+if (typeof window !== 'undefined') {
+  window.updateWishlistBadge = updateWishlistBadge;
+}
+
+/*************************************************
+ * WISHLIST TOGGLE (from product list)
+ *************************************************/
+function toggleProductWishlist(btn, productId, productName, productPrice, productImage, productStock) {
+  console.log('toggleProductWishlist called', {productId, productName, productPrice});
+  
+  const iconEl = btn.querySelector('i');
+  
+  // Ensure productId is a number
+  productId = parseInt(productId);
+  productPrice = parseInt(productPrice);
+  productStock = parseInt(productStock);
+  
+  // Decode HTML entities if any
+  productName = String(productName);
+  productImage = String(productImage);
+  
+  try {
+    let wishlist = JSON.parse(localStorage.getItem(WISHLIST_KEY) || '[]');
+    
+    // Ensure it's an array
+    if (!Array.isArray(wishlist)) {
+      wishlist = [];
+    }
+    
+    const index = wishlist.findIndex(item => parseInt(item.id) === productId);
+    
+    if (index > -1) {
+      // Remove from wishlist
+      wishlist.splice(index, 1);
+      iconEl.className = 'bi bi-heart';
+      btn.style.background = 'rgba(255,255,255,0.9)';
+      btn.style.color = '#ef4444';
+      showToast('Produk dihapus dari wishlist', 'info');
+      console.log('Removed from wishlist:', productId);
+    } else {
+      // Add to wishlist
+      wishlist.push({
+        id: productId,
+        name: productName,
+        price: productPrice,
+        image: productImage,
+        stock: productStock
+      });
+      iconEl.className = 'bi bi-heart-fill';
+      btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+      btn.style.color = 'white';
+      showToast('Produk disimpan ke wishlist!', 'success');
+      console.log('Added to wishlist:', productId);
+    }
+    
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
+    console.log('Wishlist saved:', wishlist);
+    updateWishlistBadge();
+  } catch (error) {
+    console.error('Error toggling wishlist:', error);
+    showToast('Terjadi kesalahan saat menyimpan wishlist', 'danger');
+  }
+}
+
+// Expose immediately for inline onclick
+if (typeof window !== 'undefined') {
+  window.toggleProductWishlist = toggleProductWishlist;
+  console.log('toggleProductWishlist exposed to window');
+}
+
+/*************************************************
+ * CHECK WISHLIST STATUS ON LOAD
+ *************************************************/
+function checkWishlistStatusInProducts() {
+  try {
+    const wishlist = JSON.parse(localStorage.getItem(WISHLIST_KEY) || '[]');
+    
+    if (!Array.isArray(wishlist)) {
+      return;
+    }
+    
+    // Update all wishlist buttons in product list
+    document.querySelectorAll('[id^="heart-icon-"]').forEach(iconEl => {
+      const btn = iconEl.closest('.btn-wishlist');
+      if (!btn) return;
+      
+      const productIdStr = iconEl.id.replace('heart-icon-', '');
+      const productId = parseInt(productIdStr);
+      
+      const isInWishlist = wishlist.some(item => parseInt(item.id) === productId);
+      
+      if (isInWishlist) {
+        iconEl.className = 'bi bi-heart-fill';
+        btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        btn.style.color = 'white';
+      }
+    });
+  } catch (error) {
+    console.error('Error checking wishlist status:', error);
+  }
+}
+
+/*************************************************
  * CART DRAWER
  *************************************************/
 function renderCartDrawer() {
@@ -180,6 +312,7 @@ function renderCartDrawer() {
 function openCart() {
   const drawer = document.getElementById("cartDrawer");
   const backdrop = document.getElementById("backdrop");
+  updateWishlistBadge();
   if (!drawer || !backdrop) return;
 
   drawer.classList.add("open");
@@ -202,6 +335,8 @@ function closeCart() {
  *************************************************/
 document.addEventListener("DOMContentLoaded", () => {
   updateCartBadge();
+  updateWishlistBadge();
+  checkWishlistStatusInProducts();
   renderCartDrawer();
 
   // Event listeners
@@ -233,4 +368,6 @@ window.addToCart = addToCart;
 window.removeFromCart = removeFromCart;
 window.changeQty = changeQty;
 window.clearCart = clearCart;
+window.updateWishlistBadge = updateWishlistBadge;
 window.showToast = showToast;
+window.toggleProductWishlist = toggleProductWishlist;

@@ -1366,3 +1366,18 @@ select:focus{
     height: 48px;
   }
 }
+
+/* Wishlist Button Styling */
+.btn-wishlist {
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn-wishlist:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+}
+
+.btn-wishlist:active {
+  transform: scale(0.95) !important;
+}

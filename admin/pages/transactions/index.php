@@ -5,9 +5,83 @@ include '../../../config/koneksi.php';
 include '../../../config/functions.php';
 require_once '../../../helpers/RouteHelper.php';
 
-// Get all transactions
-$query = "SELECT * FROM transaksi ORDER BY id DESC LIMIT 50";
-$result = mysqli_query($conn, $query);
+// Get filter parameters
+$search = $_GET['search'] ?? '';
+$status_filter = $_GET['status'] ?? '';
+$payment_filter = $_GET['payment'] ?? '';
+$date_filter = $_GET['date'] ?? '';
+$sort_by = $_GET['sort'] ?? 'terbaru';
+
+// Build query
+$where = [];
+$params = [];
+$types = '';
+
+if (!empty($search)) {
+  // Cari berdasarkan ID transaksi (as invoice badge), nama pembeli, atau nomor telepon
+  $where[] = "(CAST(id AS CHAR) LIKE ? OR nama_pembeli LIKE ? OR no_telp LIKE ?)";
+  $search_param = "%{$search}%";
+  $params[] = $search_param;
+  $params[] = $search_param;
+  $params[] = $search_param;
+  $types .= 'sss';
+}
+
+if (!empty($status_filter)) {
+  $where[] = "status = ?";
+  $params[] = $status_filter;
+  $types .= 's';
+}
+
+if (!empty($payment_filter)) {
+  $where[] = "payment_method = ?";
+  $params[] = $payment_filter;
+  $types .= 's';
+}
+
+if (!empty($date_filter)) {
+  switch ($date_filter) {
+    case 'today':
+      $where[] = "DATE(tanggal) = CURDATE()";
+      break;
+    case 'week':
+      $where[] = "YEARWEEK(tanggal) = YEARWEEK(NOW())";
+      break;
+    case 'month':
+      $where[] = "YEAR(tanggal) = YEAR(NOW()) AND MONTH(tanggal) = MONTH(NOW())";
+      break;
+  }
+}
+
+$where_clause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
+
+// Sort
+$order_by = "ORDER BY ";
+switch ($sort_by) {
+  case 'terlama':
+    $order_by .= "id ASC";
+    break;
+  case 'total_asc':
+    $order_by .= "total ASC";
+    break;
+  case 'total_desc':
+    $order_by .= "total DESC";
+    break;
+  default:
+    $order_by .= "id DESC";
+}
+
+// Get transactions with filters
+$query = "SELECT * FROM transaksi {$where_clause} {$order_by}";
+
+if (!empty($params)) {
+  $stmt = mysqli_prepare($conn, $query);
+  mysqli_stmt_bind_param($stmt, $types, ...$params);
+  mysqli_stmt_execute($stmt);
+  $result = mysqli_stmt_get_result($stmt);
+} else {
+  $result = mysqli_query($conn, $query);
+}
 
 // Get stats - optimized with single query
 $status_query = "
@@ -360,6 +434,22 @@ $cancelled_count = $stats['cancelled_count'];
         padding: 16px;
       }
     }
+    
+    /* Filter & Search Section */
+    .filter-section { background: white; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
+    .filter-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
+    .filter-group { display: flex; flex-direction: column; }
+    .filter-label { font-weight: 600; color: #64748b; margin-bottom: 8px; font-size: 0.85rem; }
+    .filter-input, .filter-select { padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; }
+    .filter-input:focus, .filter-select:focus { border-color: #22c55e; outline: none; }
+    .btn-filter { padding: 10px 20px; background: #22c55e; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .btn-filter:hover { background: #16a34a; }
+    .btn-reset-filter { padding: 10px 16px; background: #f3f4f6; color: #64748b; border: 2px solid #e5e7eb; border-radius: 8px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-reset-filter:hover { background: #e5e7eb; color: #475569; }
+    .active-filters { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .filter-badge { background: #dcfce7; color: #15803d; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }
+    .filter-badge i { cursor: pointer; }
+    @media (max-width: 1200px) { .filter-row { grid-template-columns: 1fr 1fr; } }
   </style>
 </head>
 <body>
@@ -412,6 +502,105 @@ $cancelled_count = $stats['cancelled_count'];
           </div>
         </div>
 
+        <!-- Filter & Search Section -->
+        <div class="filter-section">
+          <form method="GET" action="index.php" id="filterForm">
+            <div class="filter-row">
+              <div class="filter-group">
+                <label class="filter-label"><i class="bi bi-search"></i> Cari Transaksi</label>
+                <input type="text" name="search" class="filter-input" placeholder="ID transaksi, nama pembeli, atau telepon..." value="<?= htmlspecialchars($search); ?>">
+              </div>
+              
+              <div class="filter-group">
+                <label class="filter-label"><i class="bi bi-hourglass"></i> Status</label>
+                <select name="status" class="filter-select">
+                  <option value="">Semua Status</option>
+                  <option value="pending" <?= $status_filter == 'pending' ? 'selected' : ''; ?>>Menunggu</option>
+                  <option value="processing" <?= $status_filter == 'processing' ? 'selected' : ''; ?>>Diproses</option>
+                  <option value="shipped" <?= $status_filter == 'shipped' ? 'selected' : ''; ?>>Dikirim</option>
+                  <option value="delivered" <?= $status_filter == 'delivered' ? 'selected' : ''; ?>>Selesai</option>
+                  <option value="cancelled" <?= $status_filter == 'cancelled' ? 'selected' : ''; ?>>Dibatalkan</option>
+                </select>
+              </div>
+              
+              <div class="filter-group">
+                <label class="filter-label"><i class="bi bi-credit-card"></i> Pembayaran</label>
+                <select name="payment" class="filter-select">
+                  <option value="">Semua Metode</option>
+                  <option value="COD" <?= $payment_filter == 'COD' ? 'selected' : ''; ?>>COD</option>
+                  <option value="Transfer Bank" <?= $payment_filter == 'Transfer Bank' ? 'selected' : ''; ?>>Transfer Bank</option>
+                  <option value="E-Wallet" <?= $payment_filter == 'E-Wallet' ? 'selected' : ''; ?>>E-Wallet</option>
+                </select>
+              </div>
+              
+              <div class="filter-group">
+                <label class="filter-label"><i class="bi bi-calendar"></i> Periode</label>
+                <select name="date" class="filter-select">
+                  <option value="">Semua Waktu</option>
+                  <option value="today" <?= $date_filter == 'today' ? 'selected' : ''; ?>>Hari Ini</option>
+                  <option value="week" <?= $date_filter == 'week' ? 'selected' : ''; ?>>Minggu Ini</option>
+                  <option value="month" <?= $date_filter == 'month' ? 'selected' : ''; ?>>Bulan Ini</option>
+                </select>
+              </div>
+              
+              <div class="filter-group">
+                <label class="filter-label"><i class="bi bi-sort-down"></i> Urutkan</label>
+                <select name="sort" class="filter-select">
+                  <option value="terbaru" <?= $sort_by == 'terbaru' ? 'selected' : ''; ?>>Terbaru</option>
+                  <option value="terlama" <?= $sort_by == 'terlama' ? 'selected' : ''; ?>>Terlama</option>
+                  <option value="total_desc" <?= $sort_by == 'total_desc' ? 'selected' : ''; ?>>Total (Besar-Kecil)</option>
+                  <option value="total_asc" <?= $sort_by == 'total_asc' ? 'selected' : ''; ?>>Total (Kecil-Besar)</option>
+                </select>
+              </div>
+              
+              <div style="display: flex; gap: 8px; align-items: flex-end;">
+                <button type="submit" class="btn-filter">
+                  <i class="bi bi-funnel"></i> Filter
+                </button>
+                <a href="index.php" class="btn-reset-filter" title="Reset Filter">
+                  <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+              </div>
+            </div>
+            
+            <?php if (!empty($search) || !empty($status_filter) || !empty($payment_filter) || !empty($date_filter) || $sort_by != 'terbaru'): ?>
+              <div class="active-filters">
+                <small style="color: #64748b; font-weight: 600;">Filter Aktif:</small>
+                <?php if (!empty($search)): ?>
+                  <span class="filter-badge">
+                    <i class="bi bi-search"></i> "<?= htmlspecialchars($search); ?>"
+                    <i class="bi bi-x" onclick="removeFilter('search')"></i>
+                  </span>
+                <?php endif; ?>
+                <?php if (!empty($status_filter)): ?>
+                  <span class="filter-badge">
+                    <i class="bi bi-hourglass"></i> Status: <?= ucfirst($status_filter); ?>
+                    <i class="bi bi-x" onclick="removeFilter('status')"></i>
+                  </span>
+                <?php endif; ?>
+                <?php if (!empty($payment_filter)): ?>
+                  <span class="filter-badge">
+                    <i class="bi bi-credit-card"></i> <?= $payment_filter; ?>
+                    <i class="bi bi-x" onclick="removeFilter('payment')"></i>
+                  </span>
+                <?php endif; ?>
+                <?php if (!empty($date_filter)): ?>
+                  <span class="filter-badge">
+                    <i class="bi bi-calendar"></i> <?= ucfirst($date_filter); ?>
+                    <i class="bi bi-x" onclick="removeFilter('date')"></i>
+                  </span>
+                <?php endif; ?>
+                <?php if ($sort_by != 'terbaru'): ?>
+                  <span class="filter-badge">
+                    <i class="bi bi-sort-down"></i> <?= str_replace('_', ' ', ucfirst($sort_by)); ?>
+                    <i class="bi bi-x" onclick="removeFilter('sort')"></i>
+                  </span>
+                <?php endif; ?>
+              </div>
+            <?php endif; ?>
+          </form>
+        </div>
+
         <!-- Table -->
         <div class="data-table-wrapper">
           <?php if (mysqli_num_rows($result) > 0): ?>
@@ -421,6 +610,7 @@ $cancelled_count = $stats['cancelled_count'];
                   <th>Invoice</th>
                   <th>Nama Pembeli</th>
                   <th>Total</th>
+                  <th>Metode Pembayaran</th>
                   <th>Status</th>
                   <th>Tanggal Order</th>
                   <th>Aksi</th>
@@ -435,6 +625,7 @@ $cancelled_count = $stats['cancelled_count'];
                     <td><span class="invoice-badge">#INV-<?= str_pad($t['id'], 4, '0', STR_PAD_LEFT); ?></span></td>
                     <td><?= htmlspecialchars($t['nama_pembeli']); ?></td>
                     <td><span class="amount-badge">Rp <?= number_format($t['total']); ?></span></td>
+                    <td><?= htmlspecialchars($t['payment_method'] ?? ''); ?></td>
                     <td><?= getStatusBadge($t['status']); ?></td>
                     <td><i class="bi bi-calendar3"></i> <?= $formatted_date; ?></td>
                     <td class="actions">
@@ -458,5 +649,20 @@ $cancelled_count = $stats['cancelled_count'];
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function removeFilter(filterName) {
+      const form = document.getElementById('filterForm');
+      const url = new URL(window.location.href);
+      url.searchParams.delete(filterName);
+      window.location.href = url.toString();
+    }
+    
+    // Auto-submit on select change
+    document.querySelectorAll('.filter-select').forEach(select => {
+      select.addEventListener('change', function() {
+        document.getElementById('filterForm').submit();
+      });
+    });
+  </script>
 </body>
 </html>

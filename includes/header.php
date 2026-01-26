@@ -47,6 +47,12 @@
           </a>
         </li>
         <li class="nav-item">
+          <a class="nav-link position-relative" href="wishlist.php">
+            <i class="bi bi-heart"></i> Wishlist
+            <span class="wishlist-badge" id="wishlistCount" style="display: none;">0</span>
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="admin/index.php">
             <i class="bi bi-gear"></i> Admin
           </a>
@@ -160,6 +166,25 @@
   font-weight: 700;
   border: 3px solid white;
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+.wishlist-badge {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 5px;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
 }
 
 .checkout-btn {

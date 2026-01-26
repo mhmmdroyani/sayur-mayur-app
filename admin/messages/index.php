@@ -7,7 +7,7 @@ include '../../config/koneksi.php';
 if (isset($_GET['mark_read']) && isset($_GET['id'])) {
     $id = (int)$_GET['id'];
     mysqli_query($conn, "UPDATE pesan SET status='read' WHERE id=$id");
-    header("Location: pesan.php");
+    header("Location: index.php");
     exit;
 }
 
@@ -15,7 +15,7 @@ if (isset($_GET['mark_read']) && isset($_GET['id'])) {
 if (isset($_GET['delete']) && isset($_GET['id'])) {
     $id = (int)$_GET['id'];
     mysqli_query($conn, "DELETE FROM pesan WHERE id=$id");
-    header("Location: pesan.php");
+    header("Location: index.php");
     exit;
 }
 
@@ -354,13 +354,13 @@ $read_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total F
 
         <!-- Filter -->
         <div class="filter-tabs">
-          <a href="pesan.php?filter=all" class="filter-btn <?= ($filter == 'all') ? 'active' : ''; ?>">
+          <a href="index.php?filter=all" class="filter-btn <?= ($filter == 'all') ? 'active' : ''; ?>">
             Semua (<?= $total; ?>)
           </a>
-          <a href="pesan.php?filter=unread" class="filter-btn <?= ($filter == 'unread') ? 'active' : ''; ?>">
+          <a href="index.php?filter=unread" class="filter-btn <?= ($filter == 'unread') ? 'active' : ''; ?>">
             Belum Dibaca (<?= $unread; ?>)
           </a>
-          <a href="pesan.php?filter=read" class="filter-btn <?= ($filter == 'read') ? 'active' : ''; ?>">
+          <a href="index.php?filter=read" class="filter-btn <?= ($filter == 'read') ? 'active' : ''; ?>">
             Sudah Dibaca (<?= $read_count; ?>)
           </a>
         </div>
@@ -403,7 +403,7 @@ $read_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total F
                       <button class="action-btn btn-view" onclick="viewMessage(<?= $msg['id']; ?>, '<?= htmlspecialchars(addslashes($msg['nama'])); ?>', '<?= htmlspecialchars(addslashes($msg['email'])); ?>', '<?= htmlspecialchars(addslashes($msg['telepon'])); ?>', '<?= htmlspecialchars(addslashes($msg['subjek'])); ?>', '<?= htmlspecialchars(addslashes($msg['pesan'])); ?>', '<?= date('d M Y H:i', strtotime($msg['created_at'])); ?>')">
                         <i class="bi bi-eye"></i> Lihat
                       </button>
-                      <a href="pesan.php?delete=1&id=<?= $msg['id']; ?>" 
+                       <a href="index.php?delete=1&id=<?= $msg['id']; ?>" 
                          class="action-btn btn-delete"
                          onclick="return confirm('Yakin ingin menghapus pesan ini?')">
                         <i class="bi bi-trash"></i> Hapus
@@ -477,7 +477,7 @@ $read_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total F
       document.getElementById('modalSubjek').textContent = subjek;
       document.getElementById('modalTanggal').textContent = tanggal;
       document.getElementById('modalPesan').textContent = pesan;
-      document.getElementById('markReadBtn').href = 'pesan.php?mark_read=1&id=' + id;
+      document.getElementById('markReadBtn').href = 'index.php?mark_read=1&id=' + id;
       
       const modal = new bootstrap.Modal(document.getElementById('messageModal'));
       modal.show();

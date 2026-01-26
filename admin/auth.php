@@ -5,7 +5,7 @@ if (!isset($_SESSION)) {
 
 // Cek apakah sudah login
 if (!isset($_SESSION['admin'])) {
-    header("Location: ../admin/login.php");
+    header("Location: ../login.php");
     exit;
 }
 
@@ -14,7 +14,7 @@ $timeout = 1800; // 30 minutes
 if (isset($_SESSION['login_time']) && (time() - $_SESSION['login_time']) > $timeout) {
     session_unset();
     session_destroy();
-    header("Location: ../admin/login.php?timeout=1");
+    header("Location: ../login.php?timeout=1");
     exit;
 }
 

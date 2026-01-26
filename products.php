@@ -154,10 +154,18 @@ $result = mysqli_stmt_get_result($stmt);
                    alt="<?= sanitize($row['nama']); ?>"
                    style="height: 200px; object-fit: cover;">
               
+              <!-- Wishlist Button -->
+              <button class="btn btn-wishlist position-absolute top-0 end-0 m-2" 
+                      onclick="toggleProductWishlist(this, <?= (int)$row['id']; ?>, '<?= htmlspecialchars(sanitize($row['nama']), ENT_QUOTES); ?>', <?= (int)$row['harga']; ?>, 'assets/img/<?= htmlspecialchars(sanitize($row['gambar']), ENT_QUOTES); ?>', <?= (int)$row['stock']; ?>)"
+                      title="Tambah ke wishlist"
+                      style="z-index: 10; width: 40px; height: 40px; padding: 0; border: none; border-radius: 50%; background: rgba(255,255,255,0.9); color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: all 0.3s ease;">
+                <i class="bi bi-heart" id="heart-icon-<?= $row['id']; ?>"></i>
+              </button>
+              
               <?php if ($row['stock'] == 0): ?>
-                <span class="badge bg-danger position-absolute top-0 end-0 m-2">Habis</span>
+                <span class="badge bg-danger position-absolute top-0 start-0 m-2">Habis</span>
               <?php elseif ($row['stock'] < 10): ?>
-                <span class="badge bg-warning position-absolute top-0 end-0 m-2">Stok Terbatas</span>
+                <span class="badge bg-warning position-absolute top-0 start-0 m-2">Stok Terbatas</span>
               <?php endif; ?>
             </div>
 

@@ -358,6 +358,79 @@ function shareProduct() {
     showToast('Link produk disalin ke clipboard!', 'success');
   }
 }
+
+// Wishlist functionality
+function toggleWishlist() {
+  const productId = <?= $produk['id']; ?>;
+  const product = {
+    id: productId,
+    name: '<?= addslashes(sanitize($produk['nama'])); ?>',
+    price: <?= $produk['harga']; ?>,
+    image: 'assets/img/<?= sanitize($produk['gambar']); ?>',
+    stock: <?= $produk['stock']; ?>
+  };
+  
+  // Get wishlist from localStorage
+  let wishlist = JSON.parse(localStorage.getItem('sayur_mayur.wishlist') || '[]');
+  
+  // Check if product already in wishlist
+  const index = wishlist.findIndex(item => item.id === productId);
+  
+  if (index > -1) {
+    // Remove from wishlist
+    wishlist.splice(index, 1);
+    localStorage.setItem('sayur_mayur.wishlist', JSON.stringify(wishlist));
+    updateWishlistUI(false);
+    showToast('Produk dihapus dari wishlist', 'info');
+  } else {
+    // Add to wishlist
+    wishlist.push(product);
+    localStorage.setItem('sayur_mayur.wishlist', JSON.stringify(wishlist));
+    updateWishlistUI(true);
+    showToast('Produk disimpan ke wishlist!', 'success');
+  }
+  
+  // Update badge counter
+  if (typeof updateWishlistBadge === 'function') {
+    updateWishlistBadge();
+  }
+}
+
+function updateWishlistUI(isInWishlist) {
+  const btn = document.querySelector('.btn-secondary-large');
+  if (!btn) return;
+  
+  const icon = btn.querySelector('i');
+  const text = btn.querySelector('span');
+  
+  if (isInWishlist) {
+    icon.className = 'bi bi-heart-fill';
+    text.textContent = 'Tersimpan';
+    btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+    btn.style.color = 'white';
+  } else {
+    icon.className = 'bi bi-heart';
+    text.textContent = 'Simpan';
+    btn.style.background = '';
+    btn.style.color = '';
+  }
+}
+
+// Check wishlist status on page load
+function checkWishlistStatus() {
+  const productId = <?= $produk['id']; ?>;
+  const wishlist = JSON.parse(localStorage.getItem('sayur_mayur.wishlist') || '[]');
+  const isInWishlist = wishlist.some(item => item.id === productId);
+  
+  if (isInWishlist) {
+    updateWishlistUI(true);
+  }
+}
+
+// Initialize wishlist status
+document.addEventListener('DOMContentLoaded', function() {
+  checkWishlistStatus();
+});
 </script>
 
 <style>

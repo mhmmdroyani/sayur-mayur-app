@@ -16,7 +16,7 @@ $csrfToken = generateCSRFToken();
         </div>
         <div class="card-body p-4">
           
-          <!-- Cart Items -->
+          <!-- Cart Items rendered by DOMContentLoaded script below -->
           <div id="cartItemsWrapper" class="mb-4">
             <h5 class="mb-3">Ringkasan Pesanan</h5>
             <div id="checkoutCartItems" style="min-height: 50px; background: #f9fafb; padding: 15px; border-radius: 8px;">
@@ -25,41 +25,6 @@ $csrfToken = generateCSRFToken();
               </div>
             </div>
           </div>
-
-          <script type="text/javascript">
-          (function() {
-            const cartEl = document.getElementById('checkoutCartItems');
-            
-            let cartStr = localStorage.getItem('sayur_mayur.cart');
-            
-            if (!cartStr) {
-              return;
-            }
-            
-            let cart = [];
-            try {
-              cart = JSON.parse(cartStr);
-            } catch(e) {
-              return;
-            }
-            
-            if (!Array.isArray(cart) || cart.length === 0) {
-              return;
-            }
-            
-            let html = '';
-            cart.forEach((item) => {
-              const subtotal = item.price * item.qty;
-              html += '<div style="display:flex; gap:10px; padding:10px 0; border-bottom:1px solid #e5e7eb; align-items:center;">';
-              html += '<img src="' + item.image + '" width="60" height="60" style="border-radius:6px; object-fit:cover;">';
-              html += '<div style="flex:1;"><strong>' + item.name + '</strong><br><small>Rp ' + item.price.toLocaleString('id-ID') + ' × ' + item.qty + '</small></div>';
-              html += '<strong style="color:#16a34a;">Rp ' + subtotal.toLocaleString('id-ID') + '</strong>';
-              html += '</div>';
-            });
-            
-            cartEl.innerHTML = html;
-          })();
-          </script>
 
           <!-- Checkout Form -->
           <form id="checkoutForm">
@@ -195,7 +160,7 @@ $csrfToken = generateCSRFToken();
                 <div class="price-breakdown">
                   <div class="d-flex justify-content-between align-items-center mb-3 pb-2">
                     <span class="text-muted">Subtotal</span>
-                    <strong class="fs-5" id="cartTotal">Rp 0</strong>
+                    <strong class="fs-5" id="checkoutCartTotal">Rp 0</strong>
                   </div>
                   <div id="discountRow" class="d-flex justify-content-between align-items-center mb-3 pb-2" style="display: none !important;">
                     <span class="text-success">
@@ -263,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('Cart is array:', Array.isArray(cart));
 
     const cartItemsDiv = document.getElementById('checkoutCartItems');
-    const cartTotalEl = document.getElementById('cartTotal');
+    const cartTotalEl = document.getElementById('checkoutCartTotal');
     const grandTotalEl = document.getElementById('grandTotal');
     const cartItemsWrapper = document.getElementById('cartItemsWrapper');
     
@@ -278,17 +243,33 @@ document.addEventListener('DOMContentLoaded', function () {
       
       // Simpan ke localStorage untuk diakses form submit
       localStorage.setItem('sayur_mayur.discount', discount);
+      localStorage.setItem('sayur_mayur.subtotal', subtotal);
       if (appliedVoucher) {
         localStorage.setItem('sayur_mayur.voucher', JSON.stringify(appliedVoucher));
       }
       
       console.log('updateTotals called with subtotal:', subtotal, 'discount:', discount);
-      if (cartTotalEl) {
-        cartTotalEl.textContent = 'Rp ' + subtotal.toLocaleString('id-ID');
+      
+      // Re-query elements untuk memastikan mereka ada
+      const cartTotalElement = document.getElementById('checkoutCartTotal');
+      const grandTotalElement = document.getElementById('grandTotal');
+      
+      console.log('cartTotal element:', cartTotalElement);
+      console.log('grandTotal element:', grandTotalElement);
+      
+      if (cartTotalElement) {
+        const formattedSubtotal = 'Rp ' + subtotal.toLocaleString('id-ID');
+        cartTotalElement.textContent = formattedSubtotal;
+        console.log('Set checkoutCartTotal to:', formattedSubtotal);
+      } else {
+        console.error('checkoutCartTotal element not found!');
       }
+      
       const total = subtotal - discount;
-      if (grandTotalEl) {
-        grandTotalEl.textContent = 'Rp ' + total.toLocaleString('id-ID');
+      if (grandTotalElement) {
+        grandTotalElement.textContent = 'Rp ' + total.toLocaleString('id-ID');
+      } else {
+        console.error('grandTotal element not found!');
       }
       
       const discountRow = document.getElementById('discountRow');
@@ -319,7 +300,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const checkoutForm = document.getElementById('checkoutForm');
       if (checkoutForm) checkoutForm.style.display = 'none';
       
-      updateTotals();
+      // Update totals dengan 0
+      updateTotals(0, 0);
       setupVoucherListeners();
       return;
     }
@@ -327,8 +309,11 @@ document.addEventListener('DOMContentLoaded', function () {
     let html = '<div class="cart-items-container">';
     
     cart.forEach((item) => {
+      console.log('Processing cart item:', item);
       const itemSubtotal = item.price * item.qty;
       subtotal += itemSubtotal;
+      console.log(`Item: ${item.name}, Price: ${item.price}, Qty: ${item.qty}, Subtotal: ${itemSubtotal}, Running total: ${subtotal}`);
+      
       html += `
         <div style="display:flex; gap:14px; padding:12px 14px; border:1px solid #e5e7eb; border-radius:12px; background:#fff; align-items:center; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
           <div style="flex-shrink:0;">
@@ -350,11 +335,21 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     html += '</div>';
     
+    console.log('===== FINAL SUBTOTAL CALCULATED =====');
+    console.log('Total subtotal:', subtotal);
+    console.log('======================================');
+    
     if (cartItemsDiv) {
       cartItemsDiv.innerHTML = html;
     }
     
-    updateTotals();
+    // Update totals dengan subtotal yang sudah dihitung
+    console.log('Calling updateTotals with:', subtotal, 0);
+    updateTotals(subtotal, 0);
+    
+    // Store subtotal to localStorage first
+    window.checkoutSubtotal = subtotal;
+    
     setupVoucherListeners();
     loadShippingLocations();
 
@@ -423,15 +418,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Update grand total with shipping cost
   function updateGrandTotal(shippingCost = 0) {
+    const cartTotalEl = document.getElementById('checkoutCartTotal');
     const grandTotalEl = document.getElementById('grandTotal');
-    const cartData = JSON.parse(localStorage.getItem('sayur_mayur.cart')) || [];
     const discountStored = parseFloat(localStorage.getItem('sayur_mayur.discount')) || 0;
     
-    const subtotal = cartData.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    // Use cached subtotal from window object if available
+    let subtotal = window.checkoutSubtotal || 0;
+    
+    // If no cached subtotal, calculate from cart
+    if (subtotal === 0) {
+      const cartData = JSON.parse(localStorage.getItem('sayur_mayur.cart')) || [];
+      subtotal = cartData.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      window.checkoutSubtotal = subtotal;
+    }
+    
     const total = subtotal - discountStored + shippingCost;
     
+    console.log('updateGrandTotal - subtotal:', subtotal, 'discount:', discountStored, 'shipping:', shippingCost, 'total:', total);
+    
+    // Update subtotal display
+    if (cartTotalEl) {
+      cartTotalEl.textContent = 'Rp ' + subtotal.toLocaleString('id-ID');
+      console.log('Updated checkoutCartTotal to:', cartTotalEl.textContent);
+    } else {
+      console.error('checkoutCartTotal element not found!');
+    }
+    
+    // Update grand total display
     if (grandTotalEl) {
       grandTotalEl.textContent = 'Rp ' + total.toLocaleString('id-ID');
+    } else {
+      console.error('grandTotal element not found!');
     }
   }
 

@@ -91,6 +91,7 @@ Relasi:
 | Product Detail | ✅ | Detailed product info |
 | Shopping Cart | ✅ | LocalStorage + Drawer UI |
 | Add to Cart | ✅ | With toast notifications |
+| Wishlist Feature | ✅ | Save favorit products dengan localStorage |
 | Checkout Form | ✅ | Validasi client & server |
 | Order Processing | ✅ | Stock validation, transactions |
 | Invoice Display | ✅ | Printable invoice |
@@ -102,10 +103,14 @@ Relasi:
 | Secure Login | ✅ | With CSRF protection |
 | Dashboard | ✅ | Overview statistics |
 | Product CRUD | ✅ | Create, Read, Update, Delete |
+| Product Search & Filter | ✅ | Search name/category, filter stock status |
 | Image Upload | ✅ | With validation (type, size) |
 | Stock Management | ✅ | Auto-decrement on order |
 | Transaction List | ✅ | Complete order history |
-| Transaction Detail | ✅ | View order items |
+| Transaction Search | ✅ | By ID, customer name, phone |
+| Transaction Filter | ✅ | By status, payment method, date range |
+| Transaction Detail | ✅ | View order items + payment method |
+| Message Management | ✅ | View & filter customer messages |
 | Session Timeout | ✅ | Auto logout after 30 min |
 
 ---
@@ -214,19 +219,23 @@ try {
 - Proper error handling
 - No sensitive data exposure
 
-### 3. **Developer-Friendly**
-- Clean code structure
-- Reusable components
-- Helper functions
-- Documented code
-- Professional README
+### 3. **Advanced Admin Features**
+- Search & Filter di Product Management
+  - Search by product name atau kategori
+  - Filter by stock status (available/low/out)
+  - Sort by 7 opsi berbeda
+- Search & Filter di Transaction Management
+  - Search by order ID, customer name, atau phone
+  - Filter by order status, payment method, date range
+  - Payment method column untuk detail pembayaran
+  - Date filter supports: Today, This Week, This Month
 
-### 4. **Production-Ready Features**
-- Search & filter
-- Pagination
-- Image upload validation
-- Stock management
-- Transaction history
+### 4. **Customer Wishlist Feature**
+- Simpan produk favorit tanpa perlu login
+- localStorage persistence (data tersimpan di browser)
+- Real-time wishlist badge di navbar
+- Quick add to cart dari wishlist page
+- Wishlist tersedia di product detail dan product list
 
 ---
 
@@ -264,24 +273,39 @@ try {
 - Konfigurasi `config/koneksi.php`
 - Akses via browser
 
-### 2. **Testing Customer Flow** (10 menit)
+### 2. **Testing Customer Flow** (15 menit)
 - Browse homepage
-- Search products
+- Search & filter products
 - Add to cart
+- **Test Wishlist:**
+  - Klik icon hati di product cards
+  - Check wishlist counter di navbar
+  - Klik Wishlist untuk lihat favorit
+  - Add to cart dari wishlist
 - Complete checkout
-- View invoice
+- View invoice dengan subtotal, diskon, total yang benar
 
-### 3. **Testing Admin Panel** (10 menit)
+### 3. **Testing Admin Panel** (15 menit)
 - Login: admin / admin123
-- Add new product
-- Upload image
-- View transactions
-- Test security
+- **Product Management:**
+  - Search products (by name/category)
+  - Filter by stock status
+  - Sort by name/price/stock
+  - Add new product + upload image
+- **Transaction Management:**
+  - Search transactions (ID/name/phone)
+  - Filter by status/payment method
+  - Filter by date (today/week/month)
+  - View payment method column
+  - View transaction details
+- Test security features
 
 ### 4. **Code Review** (15 menit)
 - Check `proses_checkout.php` → Security
 - Check `config/functions.php` → Code quality
-- Check `products.php` → Features
+- Check `admin/pages/products/index.php` → Search & filter
+- Check `admin/pages/transactions/index.php` → Search & filter with date range
+- Check `wishlist.php` → localStorage implementation
 - Check `database.sql` → DB design
 
 ---

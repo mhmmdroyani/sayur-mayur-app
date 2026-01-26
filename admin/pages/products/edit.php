@@ -180,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <?php if (!empty($item['gambar'])): ?>
                   <div class="current-image">
                     <span class="current-image-label"><i class="bi bi-image"></i> Gambar Saat Ini:</span>
-                    <img src="../../../../assets/img/<?= htmlspecialchars($item['gambar']); ?>" alt="<?= htmlspecialchars($item['nama']); ?>">
+                    <img src="/sayur_mayur_app/assets/img/<?= htmlspecialchars($item['gambar']); ?>" alt="<?= htmlspecialchars($item['nama']); ?>">
                   </div>
                 <?php endif; ?>
                 <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 12px;">Upload gambar baru untuk mengganti (opsional)</p>
